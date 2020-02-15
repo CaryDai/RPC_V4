@@ -20,7 +20,7 @@ public class ServerServices {
         remoteServices.put(className.getName(), remoteImpl);
     }
 
-    // 将Server端的的服务都缓存进来
+    // 将Server端的服务都缓存进来
     public void registerServices() {
         this.register(HelloService.class, HelloServiceImpl.class);
     }

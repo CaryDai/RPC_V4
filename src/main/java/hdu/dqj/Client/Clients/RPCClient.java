@@ -1,22 +1,22 @@
-package hdu.dqj.Client;
+package hdu.dqj.Client.Clients;
 
+import hdu.dqj.Client.MyInvocationHandler;
 import hdu.dqj.RPCServer.Service.HelloService;
 
 import java.lang.reflect.Proxy;
 
 /**
  * @Author dqj
- * @Date 2020/1/10
+ * @Date 2019/12/24
  * @Version 1.0
- * @Description 模拟第二个客户端
+ * @Description 客户端的启动类
  */
-public class RPCClient2 {
+public class RPCClient {
     public static void main(String[] args) throws Exception {
         MyInvocationHandler invocationHandler = new MyInvocationHandler(HelloService.class);
-        // 返回代理类实例。
+        // 创建代理类对象
         HelloService proxy = (HelloService) Proxy.newProxyInstance(HelloService.class.getClassLoader(),
                 new Class<?>[]{HelloService.class}, invocationHandler);
-        Integer result = proxy.add(1,2);
-        System.out.println("client2 receives " + result);
+        proxy.sayHi("XD");
     }
 }
