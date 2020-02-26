@@ -4,6 +4,7 @@ import hdu.dqj.Register.ZookeeperServiceRegister;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -33,29 +34,33 @@ public class NettyServer {
         serviceRegister.zkClient();
         serviceRegister.serviceRegistry("hdu.dqj.RPCServer.Service.HelloService", "127.0.0.1:8090");
 
-        NioEventLoopGroup group = new NioEventLoopGroup(); // 创建 EventLoopGroup
+        // 用于处理客户端的连接请求
+        NioEventLoopGroup bossGroup = new NioEventLoopGroup();
+        // 用于处理与各个客户端连接的IO操作
+        NioEventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
             ServerBootstrap b = new ServerBootstrap();
-            b.group(group)   // 设置 EventLoopGroup 用于处理所有的 Channel 的事件（Netty 限制每个Channel 都由一个 Thread 处理）
+            b.group(bossGroup, workerGroup)   // 设置 EventLoopGroup 用于处理所有的 Channel 的事件（Netty 限制每个Channel 都由一个 Thread 处理）
                     .channel(NioServerSocketChannel.class)        // 使用指定的 NIO 传输 Channel
-                    .localAddress(new InetSocketAddress(port))    // 设置 socket 地址使用所选的端口
                     .childHandler(new ChannelInitializer<SocketChannel>() { // 添加 ServerHandler 到 Channel 的 ChannelPipeline
                         @Override
                         public void initChannel(SocketChannel ch) throws Exception {
                             // 解码。设置对象序列化最大长度为1M
-                            // 设置线程安全的WeakReferenceMap对类加载器进行缓存
+                            // 指定加载序列化对象的类的类解析器为weakCachingConcurrentResolver
                             ch.pipeline().addLast(new ObjectDecoder(1024*1024,
                                     ClassResolvers.weakCachingConcurrentResolver(this.getClass().getClassLoader())));
                             // 添加对象编码器
                             ch.pipeline().addLast(new ObjectEncoder());
                             ch.pipeline().addLast(new ServerHandler());
                         }
-                    });
+                    })
+                    .option(ChannelOption.SO_BACKLOG, 128)
+                    .childOption(ChannelOption.SO_KEEPALIVE, false);
 
-            ChannelFuture f = b.bind().sync();            // 绑定的服务器;sync 等待服务器关闭
+            ChannelFuture f = b.bind(port).sync();       // 绑定端口,开始接收进来的连接
             f.channel().closeFuture().sync();            // 等到服务端监听端口关闭
         } finally {
-            group.shutdownGracefully().sync();            // 优雅地释放线程资源
+            bossGroup.shutdownGracefully().sync();            // 优雅地释放线程资源
         }
     }
 

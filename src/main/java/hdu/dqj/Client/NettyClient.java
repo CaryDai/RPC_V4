@@ -3,6 +3,7 @@ package hdu.dqj.Client;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
@@ -33,11 +34,10 @@ public class NettyClient {
     public void run() throws Exception {
         EventLoopGroup group = new NioEventLoopGroup();
         try {
-            Bootstrap b = new Bootstrap();                //1
-            b.group(group)                                //2
-                    .channel(NioSocketChannel.class)            //3
-                    .remoteAddress(new InetSocketAddress(address, PORT))    //4
-                    .handler(new ChannelInitializer<SocketChannel>() {    //5
+            Bootstrap b = new Bootstrap();
+            b.group(group)
+                    .channel(NioSocketChannel.class)
+                    .handler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         public void initChannel(SocketChannel ch) throws Exception {
                             ch.pipeline().addLast(new ObjectDecoder(1024,
@@ -45,12 +45,13 @@ public class NettyClient {
                             ch.pipeline().addLast(new ObjectEncoder());
                             ch.pipeline().addLast(new ClientHandler(requestObject));
                         }
-                    });
+                    })
+                    .option(ChannelOption.TCP_NODELAY, true);   // 立即发送数据
 
-            ChannelFuture f = b.connect().sync();        //6
-            f.channel().closeFuture().sync();            //7
+            ChannelFuture f = b.connect(address, PORT).sync();
+            f.channel().closeFuture().sync();
         } finally {
-            group.shutdownGracefully().sync();            //8
+            group.shutdownGracefully().sync();
         }
     }
 }

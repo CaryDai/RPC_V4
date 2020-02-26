@@ -7,7 +7,7 @@ import java.util.Arrays;
  * @Author dqj
  * @Date 2020/2/14
  * @Version 1.0
- * @Description 请求信息对象
+ * @Description 请求信息对象，因为要序列化，所以需要实现Serializable接口
  */
 public class RequestObject implements Serializable {
     private String methodName;  // 方法名
