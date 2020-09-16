@@ -10,7 +10,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="RPC_V4" target="7" />
+      <module name="RPC_V4" target="8" />
     </bytecodeTargetLevel>
   </component>
 </project>

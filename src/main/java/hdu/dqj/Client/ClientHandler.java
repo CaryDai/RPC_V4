@@ -10,7 +10,6 @@ import io.netty.util.ReferenceCountUtil;
  * @Version 1.0
  * @Description
  */
-//@ChannelHandler.Sharable
 public class ClientHandler extends ChannelInboundHandlerAdapter{
 
     private RequestObject requestObject;
@@ -22,7 +21,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter{
     // 客户端连上服务端的时候触发
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-        System.out.println("客户端准备发消息给服务器...");
+//        System.out.println("客户端准备发消息给服务器...");
         ctx.writeAndFlush(requestObject);
     }
 
@@ -31,7 +30,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter{
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         try {
             Object res = msg;
-            System.out.println("Client收到消息！");
+            System.out.println("Client收到消息：");
             System.out.println(res);
         } finally {
             ReferenceCountUtil.release(msg);
@@ -40,7 +39,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter{
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {                    //4
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         cause.printStackTrace();
         ctx.close();
     }

@@ -31,7 +31,7 @@ public class ZookeeperServiceRegister {
         if (zk.exists(ZkConstants.REGISTRY_PATH, false) == null) {
             zk.create(ZkConstants.REGISTRY_PATH, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
         }
-        // 创建服务节点
+        // 创建服务节点（临时节点）
         String result = zk.create(ZkConstants.REGISTRY_PATH + "/" + serviceName, serviceAddress.getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
         if (result != null) {
             System.out.println(serviceName + "注册到zookeeper成功。");

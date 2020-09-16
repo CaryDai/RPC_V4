@@ -13,10 +13,10 @@ import java.util.HashMap;
  */
 public class ServerServices {
     // 用来存放Server端对象的缓存
-    public static HashMap<String, Class> remoteServices = new HashMap<>();
+    public static HashMap<String, Class<?>> remoteServices = new HashMap<>();
 
     // 把一个Server端对象放到缓存中
-    private void register(Class className, Class remoteImpl) {
+    private void register(Class<?> className, Class<?> remoteImpl) {
         remoteServices.put(className.getName(), remoteImpl);
     }
 

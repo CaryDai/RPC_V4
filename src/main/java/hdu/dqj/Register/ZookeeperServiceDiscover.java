@@ -1,5 +1,6 @@
 package hdu.dqj.Register;
 
+import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
@@ -24,10 +25,27 @@ public class ZookeeperServiceDiscover {
         this.serviceName = serviceName;
     }
 
-    public void zkClient() throws IOException {
+    public void zkClient(String serviceName) throws IOException {
         zk = new ZooKeeper(ZkConstants.zkhosts, ZkConstants.SESSION_TIMEOUT, new Watcher() {
             @Override
-            public void process(WatchedEvent watchedEvent) {}
+            public void process(WatchedEvent watchedEvent) {
+                // 获取事件类型
+                Event.EventType eventType = watchedEvent.getType();
+                // zk 路径
+                String path = watchedEvent.getPath();
+                if (Event.EventType.NodeCreated == eventType) {
+                    System.out.println("事件通知，新增节点" + path);
+                } else if (Event.EventType.NodeDataChanged == eventType) {
+                    System.out.println("事件通知，节点" + path + "被修改...");
+                } else if (Event.EventType.NodeDeleted == eventType) {
+                    try {
+                        System.out.println("事件通知，节点" + path + "被删除...");
+                        serviceDiscover(serviceName);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
         });
     }
 
@@ -37,14 +55,14 @@ public class ZookeeperServiceDiscover {
      * @return
      * @throws Exception
      */
-    public String serviceDiscover(String serviceName) throws Exception {
+    public String serviceDiscover(String serviceName) throws KeeperException, InterruptedException {
         // 获取rpcservers节点下的所有子节点，并注册监听
         List<String> children = zk.getChildren(ZkConstants.REGISTRY_PATH, true);
         // 服务对应的服务器列表
         ArrayList<String> serverList = new ArrayList<>();
         for (String child : children) {
             if (serviceName.equals(child)) {
-                byte[] data = zk.getData(ZkConstants.REGISTRY_PATH + "/" + child, false, null);
+                byte[] data = zk.getData(ZkConstants.REGISTRY_PATH + "/" + child, true, null);
                 serverList.add(new String(data));
             }
         }

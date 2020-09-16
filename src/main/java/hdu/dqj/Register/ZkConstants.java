@@ -9,7 +9,8 @@ package hdu.dqj.Register;
 class ZkConstants {
 
     // zk服务器列表
-    static final String zkhosts = "192.168.44.128:2181";
+//    static final String zkhosts = "192.168.44.128:2181";
+    static final String zkhosts = "127.0.0.1:2181";
 
     // zk session过期时间
     static final int SESSION_TIMEOUT = 5000;

@@ -31,7 +31,7 @@ public class NettyClient {
         this.requestObject = requestObject;
     }
 
-    public void run() throws Exception {
+    public boolean run() throws InterruptedException {
         EventLoopGroup group = new NioEventLoopGroup();
         try {
             Bootstrap b = new Bootstrap();
@@ -50,6 +50,7 @@ public class NettyClient {
 
             ChannelFuture f = b.connect(address, PORT).sync();
             f.channel().closeFuture().sync();
+            return true;
         } finally {
             group.shutdownGracefully().sync();
         }
