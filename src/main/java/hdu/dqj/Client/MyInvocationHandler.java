@@ -25,7 +25,7 @@ public class MyInvocationHandler implements InvocationHandler {
         serviceName = target.getName();
 //        System.out.println(serviceName);
         serviceDiscover = new ZookeeperServiceDiscover(serviceName);
-        serviceDiscover.zkClient(serviceName); // 创建服务发现的客户端
+        serviceDiscover.zkClient(); // 创建服务发现的客户端
         // 服务端的地址（包括ip地址和端口号）
         serverAddress = serviceDiscover.serviceDiscover(serviceName);
         String[] str = serverAddress.split(":");

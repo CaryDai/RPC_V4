@@ -20,12 +20,13 @@ public class ZookeeperServiceDiscover {
 
     private ZooKeeper zk = null;
     private String serviceName = null;   // 客户端要查找的服务名
+    private ArrayList<String> serverList = new ArrayList<>();
 
     public ZookeeperServiceDiscover(String serviceName) {
         this.serviceName = serviceName;
     }
 
-    public void zkClient(String serviceName) throws IOException {
+    public void zkClient() throws IOException {
         zk = new ZooKeeper(ZkConstants.zkhosts, ZkConstants.SESSION_TIMEOUT, new Watcher() {
             @Override
             public void process(WatchedEvent watchedEvent) {
@@ -40,7 +41,7 @@ public class ZookeeperServiceDiscover {
                 } else if (Event.EventType.NodeDeleted == eventType) {
                     try {
                         System.out.println("事件通知，节点" + path + "被删除...");
-                        serviceDiscover(serviceName);
+                        serverList.remove(path);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -59,7 +60,7 @@ public class ZookeeperServiceDiscover {
         // 获取rpcservers节点下的所有子节点，并注册监听
         List<String> children = zk.getChildren(ZkConstants.REGISTRY_PATH, true);
         // 服务对应的服务器列表
-        ArrayList<String> serverList = new ArrayList<>();
+        serverList = new ArrayList<>();
         for (String child : children) {
             if (serviceName.equals(child)) {
                 byte[] data = zk.getData(ZkConstants.REGISTRY_PATH + "/" + child, true, null);
